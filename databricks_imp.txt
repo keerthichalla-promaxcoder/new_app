@@ -1,0 +1,232 @@
+DATABRICKS CHEAT SHEET — BASIC TO ULTIMATE ADVANCED (2025)
+
+LEVEL 1 — BASICS
+
+What Databricks Is:
+
+Cloud-based unified analytics platform
+
+Combines Spark + SQL + Delta Lake + ML + Jobs + Git + Unity Catalog
+
+Supports collaborative notebooks: Python, SQL, Scala, R
+
+Workspace Navigation:
+
+Workspace: Notebooks, Repos, Shared files
+
+Compute: Clusters, Pools
+
+Data: Tables, Volumes, Catalogs
+
+Jobs: Scheduled workflows
+
+Repos: Git integration
+
+Clusters: All-purpose / Job clusters
+
+Basic Notebook Commands:
+%python, %sql, %scala, %r
+
+DBFS Commands:
+dbutils.fs.ls("/mnt/data")
+dbutils.fs.cp("/src", "/dest")
+dbutils.fs.rm("/mnt/raw", recurse=True)
+
+Databricks Utilities (dbutils):
+dbutils.widgets.text("param", "default")
+dbutils.widgets.get("param")
+dbutils.secrets.get("scope", "key")
+
+LEVEL 2 — CORE SQL + DELTA LAKE
+
+Create Tables:
+CREATE TABLE sales (id INT, amount DOUBLE);
+CREATE TABLE sales_delta (id INT, amount DOUBLE) USING DELTA;
+
+Insert / Read Data:
+INSERT INTO sales_delta VALUES (1, 100), (2, 200);
+df = spark.read.format("delta").load("/mnt/delta/sales")
+
+Delta Features:
+
+Time Travel: SELECT * FROM sales_delta VERSION AS OF 3; SELECT * FROM sales_delta TIMESTAMP AS OF '2024-01-01';
+
+Merge (Upsert): MERGE INTO target t USING source s ON t.id = s.id WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *;
+
+LEVEL 3 — SPARK ESSENTIALS
+
+DataFrames:
+df = spark.read.csv("/mnt/data/file.csv", header=True)
+df2 = df.filter(df.amount > 100).select("id", "amount")
+df.count()
+df.show()
+df.cache()
+df.write.format("delta").mode("overwrite").save("/mnt/delta/path")
+
+LEVEL 4 — MEDALLION ARCHITECTURE
+
+Layer | Purpose
+Bronze | Raw ingestion
+Silver | Cleaned, deduped
+Gold | Business aggregated
+
+Example:
+raw_df.write.format("delta").saveAsTable("bronze.orders_raw")
+clean_df.write.format("delta").saveAsTable("silver.orders_clean")
+agg_df.write.format("delta").saveAsTable("gold.sales_daily")
+
+LEVEL 5 — AUTOLOADER / STREAMING
+
+df = (spark.readStream.format("cloudFiles").option("cloudFiles.format", "json").load("/mnt/raw"))
+df.writeStream.format("delta").outputMode("append").trigger(availableNow=True).table("bronze.streaming_data")
+
+LEVEL 6 — JOBS & WORKFLOWS
+
+Notebook tasks
+
+Delta Live Tables (DLT)
+
+Python scripts
+
+JAR tasks
+
+Example:
+dbutils.jobs.taskValues.set(key="rows", value="500")
+
+LEVEL 7 — CI/CD + GIT
+
+git clone <repo>
+git add .
+git commit -m "update"
+git push
+
+Branch strategy: main = production, dev = development
+
+Repos → Jobs → Workflows for deployment
+
+LEVEL 8 — UNITY CATALOG (Governance)
+
+Metastore → Catalog → Schema → Table
+
+Managed / External tables
+
+Volumes: File storage
+
+Example:
+CREATE TABLE catalog.schema.table USING delta LOCATION 's3://bucket/path';
+GRANT SELECT ON TABLE catalog.schema.table TO analyst;
+
+LEVEL 9 — PERFORMANCE OPTIMIZATION TECHNIQUES
+
+1. Adaptive Query Execution (AQE)
+
+Auto fixes skew, shuffles, join strategy
+
+Enabled by default
+
+2. Liquid Clustering
+ALTER TABLE sales SET TBLPROPERTIES (delta.liquidClustering = "true", delta.clusterColumns = "customer_id, date");
+
+3. Z-ORDER
+OPTIMIZE sales ZORDER BY (customer_id, order_date);
+
+4. Partitioning
+
+Low-cardinality, frequently-filtered columns only
+
+Avoid over-partitioning
+
+5. Auto Optimize
+ALTER TABLE sales SET TBLPROPERTIES ('delta.autoOptimize.optimizeWrite' = true, 'delta.autoOptimize.autoCompact' = true);
+
+6. Predictive Optimization
+
+Automatic clustering, file layout, stats, and skipping
+
+7. OPTIMIZE Command
+OPTIMIZE table_name;
+
+8. VACUUM
+VACUUM table_name RETAIN 168 HOURS;
+
+9. Caching
+df.cache()
+df.count()
+
+LEVEL 10 — ADVANCED / EXPERT FEATURES
+
+Delta Lake Internals: _delta_log, checkpoints, CDF (Change Data Feed)
+ALTER TABLE table_name SET TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
+Photon Runtime: high-speed SQL and Spark queries
+
+Serverless compute: automatic resource scaling
+
+Governance & Lineage: column-level lineage, ABAC, data masking
+
+Lakehouse OLTP + OLAP integration
+
+ULTIMATE BEST PRACTICES TABLE (2025)
+
+Scenario | Recommended Technique
+High-cardinality filters | Liquid Clustering / Predictive Optimization
+Time-series queries | Partition by date + ZORDER
+Large ingestion / small files | Auto Optimize / OPTIMIZE
+Skewed data | AQE (automatic)
+Repeated queries / ML | Cache intermediate DataFrames
+Multi-column filtering | ZORDER / Liquid Clustering
+Interactive BI | Photon + Predictive Optimization
+Streaming ingestion | Auto Loader + Auto Optimize
+Data governance | Unity Catalog + ABAC + CDF
+
+Notes & Tips:
+
+Prefer Predictive Optimization + Liquid Clustering over manual ZORDER
+
+AQE + Photon runtime reduces manual query tuning
+
+Avoid over-partitioning; use Auto Optimize to handle small files
+
+Use Delta Lake features (time travel, CDF) for auditing, rollback, and CDC pipelines
+
+INTERVIEW QUESTIONS — DATABRICKS
+
+What is Databricks and how does it differ from plain Spark?
+
+Explain Delta Lake and its key benefits.
+
+What is Medallion Architecture (Bronze, Silver, Gold)?
+
+How does Auto Loader work?
+
+What is Time Travel in Delta Lake and how do you implement it?
+
+Explain Adaptive Query Execution (AQE) and how it handles skewed data.
+
+What is Liquid Clustering and how does it differ from Z-Order?
+
+When should you partition a Delta table and when should you avoid it?
+
+How does Auto Optimize help with small files?
+
+What is Predictive Optimization and why is it preferred over manual ZORDER?
+
+Explain caching in Spark — when and why to use it.
+
+What are the main differences between Photon runtime and standard Spark runtime?
+
+How do you implement Change Data Feed (CDF) in Delta Lake?
+
+How do Unity Catalog and Delta Governance improve security and lineage?
+
+How would you optimize a table for high-cardinality filters and repeated queries?
+
+Describe a production pipeline using Databricks Medallion Architecture, Auto Loader, Delta Lake, and jobs.
+
+How does AQE interact with joins and shuffles in large datasets?
+
+How would you handle small files in streaming ingestion pipelines?
+
+Explain Delta Lake VACUUM and its importance.
+
+What are common Databricks performance tuning best practices?
