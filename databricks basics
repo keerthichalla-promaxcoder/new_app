@@ -1,0 +1,72 @@
+Databricks is built on top of Apache Spark, but it adds a lot of functionality on top of the Spark engine to make it easier to use in enterprise environments. Let me break it down clearly:
+
+Managed Spark Clusters – Auto-provisioning, scaling, and optimized configuration.
+
+Databricks Runtime – Optimized Spark engine with pre-installed libraries.
+
+Delta Lake – ACID-compliant storage, schema enforcement, time travel.
+
+Interactive Notebooks – Multi-language, collaboration, visualizations.
+
+Jobs & Workflows – Scheduling, automation, monitoring pipelines.
+
+Security & Governance – RBAC, encryption, audit logging.
+
+Performance Optimizations – AQE, Z-Ordering, partitioning, caching.
+
+ML & AI Integration – MLflow, MLlib, TensorFlow, PyTorch.
+
+SQL Analytics & BI Integration – Dashboards, BI connectors.
+
+Streaming & Real-time Processing – Structured Streaming + Delta Lake.
+
+============== CLUSTERS - FLOWCHART ===============================
+
+
+
+                       ┌────────────────────────┐
+                       │   Databricks Compute   │
+                       └───────────┬────────────┘
+                                   │
+     ┌─────────────────────────────┼──────────────────────────────┐
+     │                             │                              │
+     ▼                             ▼                              ▼
+┌───────────────┐         ┌────────────────┐             ┌────────────────┐
+│All-purpose     │         │ Job Clusters  │             │ SQL Warehouses │
+│Clusters        │         │(Ephemeral)    │             │ (SQL Compute)  │
+└───────┬────────┘         └───────┬────────┘             └──────┬────────┘
+        │                            │                            │
+        │                            │                            │
+   Options:                      Options:                     Types:
+   - Standard                    - Autoscaling                - Serverless
+   - High Concurrency           - Min/Max workers            - Classic
+   - Single Node                - Runtime version            Options:
+   - Autoscaling                - Spark config               - Size (XS–5X)
+   - Runtime (DBR/ML/Photon)    - Init scripts               - Auto-stop
+   - Permissions                - Node types                 - Scaling
+   - Libraries install                                        - Photon engine
+        │                            │                            │
+        │                            │                            │
+        ▼                            ▼                            ▼
+ ┌────────────────┐        ┌────────────────┐            ┌──────────────────┐
+ │ Interactive Dev│        │ Production ETL │            │ BI & Dashboards  │
+ └────────────────┘        └────────────────┘            └──────────────────┘
+
+
+                 ┌──────────────────────────┐
+                 │ Additional Compute Types │
+                 └──────────────┬───────────┘
+                                │
+       ┌────────────────────────┼─────────────────────────┐
+       │                        │                         │
+       ▼                        ▼                         ▼
+┌───────────────┐       ┌────────────────┐        ┌────────────────────┐
+│ Model Serving  │       │ DLT Compute   │        │ Photon Engine      │
+│ (MLflow)       │       │ (Pipelines)   │        │ (Optional engine)  │
+└──────┬─────────┘       └───────┬────────┘        └────────┬──────────┘
+       │                           │                          │
+       ▼                           ▼                          ▼
+┌───────────────┐        ┌────────────────┐         ┌──────────────────────┐
+│ REST API       │        │ Continuous/    │         │ Used by All-purpose,│
+│ endpoints       │        │ Triggered DLT │         │ Jobs, SQL engines   │
+└───────────────┘        └────────────────┘         └──────────────────────┘
