@@ -37,7 +37,6 @@ INSERT INTO sales_delta VALUES (1, 100), (2, 200);
 df = spark.read.format("delta").load("/mnt/delta/sales")
 
 Delta Features:
-
 Time Travel: SELECT * FROM sales_delta VERSION AS OF 3; SELECT * FROM sales_delta TIMESTAMP AS OF '2024-01-01';
 
 Merge (Upsert): MERGE INTO target t USING source s ON t.id = s.id WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *;
