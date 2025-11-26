@@ -1,27 +1,16 @@
 DATABRICKS CHEAT SHEET — BASIC TO ULTIMATE ADVANCED (2025)
 
 LEVEL 1 — BASICS
-
 What Databricks Is:
-
 Cloud-based unified analytics platform
-
 Combines Spark + SQL + Delta Lake + ML + Jobs + Git + Unity Catalog
-
 Supports collaborative notebooks: Python, SQL, Scala, R
-
 Workspace Navigation:
-
 Workspace: Notebooks, Repos, Shared files
-
 Compute: Clusters, Pools
-
 Data: Tables, Volumes, Catalogs
-
 Jobs: Scheduled workflows
-
 Repos: Git integration
-
 Clusters: All-purpose / Job clusters
 
 Basic Notebook Commands:
