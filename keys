@@ -59,14 +59,8 @@ DATA WAREHOUSE / KEYS SUMMARY
 - Example: order_sk + line_item_sk for fact table.
 
 =================================================
-BUSINESS KEY vs PRIMARY KEY
+PRIMARY KEY vs BUSINESS KEY
 =================================================
-- Business Key: Natural, meaningful to business, may come from source system, stable but can change rarely.
-- Primary Key: Ensures DB-level uniqueness, may be surrogate or natural, chosen to enforce table integrity.
-- Example: 
-    cust_sk (PK) | customer_id (Business Key) | name | country
-         1       |      C001                  | Alice| US
-
 - A Primary Key can be a Business Key: If the business key is stable, unique, and suitable for database joins, it can serve as the primary key.
   Example: customer_id used as both PK and BK.
   
@@ -93,7 +87,8 @@ CANDIDATE KEY vs ALTERNATE KEY
 =================================================
 KEY TAKEAWAYS
 =================================================
-- Never use Python set `{...}` in PySpark agg() — it's invalid.
-- Use column expressions with `.alias()` in PySpark agg() for multiple aggregations on same column.
+- Never use Python set {…} in PySpark agg() — it's invalid.
+- Use column expressions with .alias() in PySpark agg() for multiple aggregations on same column.
 - Business Key = meaningful ID from source; Surrogate PK = internal unique ID in DW.
 - Candidate keys = potential PKs; Alternate keys = leftover candidate keys not chosen as PK.
+- PK can be a Business Key, but BK cannot always be PK.
