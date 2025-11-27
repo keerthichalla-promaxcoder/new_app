@@ -1,0 +1,135 @@
+###############################################
+# SPARK AQE (Adaptive Query Execution) CHEAT SHEET
+# Spark 3.x+ / Databricks Premium Edition
+###############################################
+
+# ==============================
+# 1️⃣ Enable AQE
+# ==============================
+# Enables Adaptive Query Execution (core feature)
+spark.conf.set("spark.sql.adaptive.enabled", "true")
+
+# AQE automatically optimizes queries at runtime:
+# - Adjusts shuffle partitions dynamically
+# - Switches join strategies (broadcast ↔ shuffle)
+# - Performs runtime query plan optimization
+
+# ==============================
+# 2️⃣ Dynamic Shuffle Partitions
+# ==============================
+# AQE automatically adjusts the number of shuffle partitions
+# based on actual data size during runtime
+# Reduces unnecessary small or large partitions
+
+# Default shuffle partition setting
+spark.conf.get("spark.sql.shuffle.partitions")  # default 200
+
+# Example: reading a big Delta table
+df = spark.read.format("delta").load("/mnt/delta/sales")
+df.groupBy("region").sum("amount").show()
+
+# AQE dynamically adjusts shuffle partitions during the aggregation
+
+# ==============================
+# 3️⃣ Join Strategy Switching
+# ==============================
+# AQE can dynamically switch join strategies:
+# - Broadcast join ↔ Shuffle join
+# depending on table size at runtime
+
+# Example
+small_df = spark.read.parquet("/mnt/delta/customers_small")
+large_df = spark.read.parquet("/mnt/delta/orders_large")
+
+# Join: AQE decides broadcast or shuffle automatically
+joined_df = large_df.join(small_df, "customer_id")
+joined_df.show()
+
+# ==============================
+# 4️⃣ Skewed Join Handling
+# ==============================
+# Detects skewed partitions and splits them to avoid straggler tasks
+
+# Enable skew join handling
+spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
+
+# Optional: set threshold for skewed partitions
+spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", 134217728)  # 128 MB
+
+# Example: joining skewed data
+skewed_df = spark.read.parquet("/mnt/delta/skewed_sales")
+normal_df = spark.read.parquet("/mnt/delta/products")
+
+result_df = skewed_df.join(normal_df, "product_id")
+result_df.show()
+# AQE splits skewed partitions automatically
+
+# ==============================
+# 5️⃣ Coalescing Small Shuffle Partitions
+# ==============================
+# Reduces too many tiny partitions after shuffle
+# Helps reduce small files and task overhead
+
+spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+
+# Optional: control max partition size after coalescing
+spark.conf.set("spark.sql.adaptive.coalescePartitions.maxPartitionBytes", 134217728)  # 128 MB
+
+# Example: after shuffle in groupBy
+agg_df = df.groupBy("region").sum("amount")
+agg_df.write.format("delta").mode("overwrite").save("/mnt/delta/output")
+
+# AQE combines tiny partitions into fewer, larger ones
+
+# ==============================
+# 6️⃣ Repartitioning / Dynamic Task Parallelism
+# ==============================
+# AQE can dynamically adjust number of tasks/partitions
+# based on runtime data size
+# Helps optimize parallelism and resource usage
+
+# Example: large aggregation
+agg_df = df.groupBy("region").agg({"amount": "sum"})
+# Spark automatically decides number of shuffle tasks
+
+# ==============================
+# 7️⃣ Runtime Query Plan Optimization
+# ==============================
+# AQE can re-optimize the physical plan at runtime
+# Based on statistics collected during execution
+# Example: changing join order or switching join type dynamically
+
+# ==============================
+# 8️⃣ Optional / Internal Features
+# ==============================
+# - Adaptive Local Sort: improves shuffle sort efficiency
+# - Skewed Partition Threshold: configures size to detect skew
+# - All internal optimizations happen automatically with AQE
+
+# ==============================
+# SUMMARY OF CONFIGS
+# ==============================
+# Enable AQE
+spark.conf.set("spark.sql.adaptive.enabled", "true")
+
+# Reduce small shuffle partitions / small files
+spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+spark.conf.set("spark.sql.adaptive.coalescePartitions.maxPartitionBytes", 134217728)
+
+# Handle skewed joins
+spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
+spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", 134217728)
+
+# Optional: min number of partitions after coalescing
+spark.conf.set("spark.sql.adaptive.coalescePartitions.minPartitionNum", 10)
+
+# ==============================
+# NOTES
+# ==============================
+# 1. AQE only works if Spark version >= 3.0
+# 2. Enabling AQE alone provides:
+#    - Dynamic shuffle partitions
+#    - Join strategy switching
+#    - Runtime query plan optimization
+# 3. To handle skew and reduce small files, enable respective configs
+# 4. Always enable AQE first before enabling coalescing or skew join handling

@@ -1,0 +1,94 @@
+=============================
+DATA WAREHOUSE / KEYS SUMMARY
+=============================
+
+1. PRIMARY KEY
+-----------------
+- Definition: Column(s) that uniquely identifies each record in a table.
+- Characteristics: Unique, Not NULL, chosen as main identifier in the table.
+- Example: cust_sk in Customer dimension table.
+- Use: Ensures table integrity, indexing, and joins.
+
+2. BUSINESS KEY (Natural Key)
+-----------------
+- Definition: Column(s) from source system that uniquely identifies a record in the business context.
+- Characteristics: Meaningful to business, stable, may exist in source system.
+- Example: customer_id, order_number.
+- Use: Deduplication, merges, slowly changing dimensions (SCD Type 2).
+
+3. SURROGATE KEY
+-----------------
+- Definition: System-generated unique identifier, not derived from business data.
+- Characteristics: Stable, meaningless to business, often auto-increment or UUID.
+- Example: cust_sk, order_sk.
+- Use: Internally in dimension tables to maintain uniqueness and joins.
+
+4. FOREIGN KEY
+-----------------
+- Definition: Column in one table that references primary key of another table.
+- Use: Maintains referential integrity between tables.
+- Example: customer_id in Orders referencing Customer table.
+
+5. COMPOSITE KEY
+-----------------
+- Definition: Key made from multiple columns to uniquely identify a record.
+- Example: (employee_id, company_id).
+
+6. CANDIDATE KEY
+-----------------
+- Definition: Column(s) that could uniquely identify a record (all potential PKs).
+- Characteristics: Unique, minimal.
+- Example: customer_id, email in Customer table.
+- Note: One of the candidate keys is chosen as Primary Key.
+
+7. ALTERNATE KEY
+-----------------
+- Definition: Candidate key **not chosen** as primary key.
+- Characteristics: Still unique, can be used for lookups or uniqueness constraints.
+- Example: If customer_id is PK, email is Alternate Key.
+
+8. UNIQUE KEY
+-----------------
+- Definition: Ensures values in column(s) are unique.
+- Characteristics: Can be null (depending on DBMS), enforces uniqueness.
+- Example: social_security_number.
+
+9. COMPOSITE SURROGATE KEY
+-----------------
+- Definition: Surrogate key made from multiple surrogate columns to ensure uniqueness.
+- Example: order_sk + line_item_sk for fact table.
+
+=================================================
+PRIMARY KEY vs BUSINESS KEY
+=================================================
+- A Primary Key can be a Business Key: If the business key is stable, unique, and suitable for database joins, it can serve as the primary key.
+  Example: customer_id used as both PK and BK.
+  
+- A Business Key cannot always be a Primary Key: Business keys may change over time, be composite, or inefficient for joins, so they are not always suitable as primary keys.
+  Example: email or order_number may serve as BK but not as PK in a warehouse; a surrogate key is used instead.
+
+Rule of Thumb:
+PK = database-level uniqueness & integrity
+BK = business-level uniqueness & traceability
+PK and BK can overlap, but BK cannot always be PK.
+
+=================================================
+CANDIDATE KEY vs ALTERNATE KEY
+=================================================
+- Candidate Key: Any column(s) that could serve as primary key. Multiple may exist.
+- Primary Key: The candidate key chosen as the main identifier.
+- Alternate Key: Candidate key(s) not chosen as primary key, still unique.
+- Example:
+    Customer table:
+        candidate keys = [customer_id, email]
+        primary key = customer_id
+        alternate key = email
+
+=================================================
+KEY TAKEAWAYS
+=================================================
+- Never use Python set {…} in PySpark agg() — it's invalid.
+- Use column expressions with .alias() in PySpark agg() for multiple aggregations on same column.
+- Business Key = meaningful ID from source; Surrogate PK = internal unique ID in DW.
+- Candidate keys = potential PKs; Alternate keys = leftover candidate keys not chosen as PK.
+- PK can be a Business Key, but BK cannot always be PK.

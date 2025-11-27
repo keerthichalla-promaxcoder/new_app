@@ -1,0 +1,218 @@
+Databricks before Lakehouse
+
+Databricks after Lakehouse
+
+Databricks Lakehouse before Unity Catalog
+
+Databricks Lakehouse after Unity Catalog
+
+Delta Lake vs Lakehouse
+
+Unity Catalog vs Lakehouse
+
+Which parts are subsystems vs separate
+
+All in short, clean, array-point, notepad-style format.
+
+📄 FINAL NOTEPAD STYLE — COMPLETE COMBINED NOTES
+====================================================
+1. Databricks BEFORE Lakehouse Architecture
+
+Pure Spark-based analytics platform
+
+No unified architecture
+
+Data stored in Parquet/CSV/JSON
+
+No ACID transactions
+
+No time travel
+
+Storage became “data swamp” easily
+
+Limited SQL capabilities
+
+No Medallion architecture
+
+Hive Metastore optional and limited
+
+Governance through basic ACLs and cloud IAM
+
+Harder for BI workloads, batch-focused
+
+No native data warehouse layer
+
+====================================================
+2. Databricks AFTER Lakehouse Architecture Introduced
+
+Delta Lake introduced → ACID, time travel, schema enforcement
+
+Lakehouse = Data Lake + Data Warehouse unified
+
+Medallion architecture (Bronze/Silver/Gold) standardized
+
+High performance SQL (SQL Warehouse)
+
+Supports ETL, ML, Streaming, BI on same platform
+
+Better reliability through Delta
+
+Storage + compute decoupled
+
+Large-scale workloads possible
+
+Governance improved but still workspace-level
+
+Hive Metastore still used as catalog
+
+====================================================
+3. Databricks WITH Lakehouse (Before Unity Catalog)
+
+Still used Hive Metastore → per workspace
+
+Metadata isolated per workspace
+
+No cross-workspace table sharing
+
+Permissions fragmented:
+
+Table ACLs
+
+Cloud IAM
+
+Cluster ACLs
+
+Notebook ACLs
+
+No column-level or row-level security
+
+No lineage features
+
+Sharing data required giving storage paths
+
+Data reliability good (Delta), governance weak
+
+Large enterprises struggled with multi-workspace management
+
+No centralized catalog at account level
+
+====================================================
+4. Databricks WITH Lakehouse AND Unity Catalog
+
+Central account-level governance
+
+Single Unity Metastore for all workspaces
+
+Catalog → Schema → Table hierarchy
+
+Strong security features:
+
+Row-level filtering
+
+Column masking
+
+Attribute-based access control
+
+Full lineage: table + column-level
+
+Delta Sharing enabled for simple internal/external sharing
+
+Managed locations and storage credentials
+
+Standardized data access across workspaces
+
+Unified permissions for tables, notebooks, jobs, models
+
+Strong compliance (HIPAA, PCI, SOX, etc.)
+
+Fully governed Lakehouse end-to-end
+
+Easier to scale for large organizations
+
+====================================================
+5. Delta Lake vs. Lakehouse (Short Points)
+
+Delta Lake
+
+Storage format + ACID transaction layer
+
+Adds reliability to data lake
+
+Provides time travel & schema enforcement
+
+Works on ADLS/S3/GCS
+
+Subsystem inside the Lakehouse
+
+Lakehouse
+
+Entire architecture combining Lake + Warehouse
+
+Uses Delta Lake as storage foundation
+
+Includes SQL, ML, BI, governance, lineage
+
+Overall system, not just storage
+
+Summary
+
+Delta Lake = technology
+
+Lakehouse = architecture
+
+Delta Lake is part of the Lakehouse (not separate)
+
+====================================================
+6. Unity Catalog vs. Lakehouse (Short Points)
+
+Unity Catalog
+
+Central governance + metadata layer
+
+Row/column-level security
+
+Cross-workspace access
+
+Lineage, auditing, delta sharing
+
+Subsystem inside the Lakehouse
+
+Lakehouse
+
+Full data platform with storage, compute, governance
+
+Unity Catalog is the governance engine inside it
+
+Summary
+
+Unity Catalog = governance subsystem
+
+Lakehouse = architecture
+
+Unity Catalog is not separate, it enhances the Lakehouse
+
+====================================================
+7. Classification: Subsystems vs. Separate Things
+
+Subsystems of Lakehouse:
+
+Delta Lake (storage reliability)
+
+Unity Catalog (governance + metadata)
+
+SQL Warehouse
+
+ML Runtime
+
+Photon Engine
+
+Orchestration (Jobs)
+
+Separate Concepts:
+
+Lakehouse itself = overarching architecture
+
+Hive Metastore (older governance system)
+
+====================================================
+END OF NOTES
